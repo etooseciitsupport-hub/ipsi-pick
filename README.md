@@ -27,6 +27,10 @@
 
 ## 배포
 
+> **기존 배포 주소에 덮어쓰지 않습니다.** jinro-dash·Expert-Course 등 이미 운영 중인 저장소에 이 파일을 올리지 마십시오.
+> 입시 Pick은 반드시 **새 저장소**에 **별도 커밋**으로 배포합니다. 계정에 같은 이름의 저장소가 이미 있으면 다른 이름(예: `ipsi-pick-v1`)을 쓰십시오 —
+> 저장소 이름이 달라도 동작합니다(두 앱을 `../jinro-dash/`, `../Expert-Course/` 로 찾기 때문).
+
 1. 새 저장소 `ipsi-pick` (Public) 생성 → 이 폴더 내용 전부 업로드
 2. `.nojekyll` 이 빠졌다면 직접 생성 (Add file → Create new file → 이름 `.nojekyll`, 내용 비움)
 3. Settings → Pages → `main` / `(root)`
