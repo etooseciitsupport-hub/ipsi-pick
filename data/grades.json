@@ -1,0 +1,17 @@
+{
+  "source": "ECI 입시도구 통합 기획(안) 2026.10.16 · Appendix 6",
+  "grades": [
+    { "id": "m12", "name": "중1·중2", "concern": "진로와 고교 유형 이해", "recommend": ["school", "design"],
+      "results": "관심 학교와 계열 비교표, 고교 선택 확인 질문", "value": "다음 선택의 기준 확보" },
+    { "id": "m3", "name": "중3", "concern": "진학할 고교와 입학 준비", "recommend": ["school", "design"],
+      "results": "학교별 교육과정 비교표, 입학 준비 체크리스트", "value": "학교 선택과 준비 연결" },
+    { "id": "h1", "name": "고1", "concern": "전공과 과목, 학습 방향", "recommend": ["design", "study"],
+      "results": "학기별 과목 계획, 실행할 학습 계획", "value": "관심을 행동으로 연결" },
+    { "id": "h2", "name": "고2", "concern": "지원 전형과 준비 균형", "recommend": ["susi", "jeongsi"],
+      "results": "전형별 준비 체크리스트, 후보와 수능 최저 요건표", "value": "준비 우선순위 결정" },
+    { "id": "h3", "name": "고3", "concern": "원서와 대학별 고사 대응", "recommend": ["susi", "jeongsi", "essay"],
+      "results": "후보와 전형 조건표, 접수·고사 확인 일정", "value": "시기에 맞춘 지원 실행" },
+    { "id": "n", "name": "N수생", "concern": "지원 결과와 전략 재점검", "recommend": ["jeongsi", "susi"],
+      "results": "후보, 군별 조합 초안, 이번 지원 확인 조건", "value": "보완 계획 수립" }
+  ]
+}

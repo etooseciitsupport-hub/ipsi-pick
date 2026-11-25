@@ -1,0 +1,46 @@
+{
+  "groups": [
+    { "id": "career", "name": "진로 설계" },
+    { "id": "apply", "name": "지원 전략" },
+    { "id": "study", "name": "학습 실행" }
+  ],
+  "modes": [
+    { "id": "free", "name": "무료 탐색", "desc": "기본 비교·탐색을 결제 없이 바로 이용합니다." },
+    { "id": "member", "name": "재원생 혜택", "desc": "247 재원생 기본 관리 범위로 이용합니다. 컨설팅만 별도입니다." },
+    { "id": "consult", "name": "유료 컨설팅 검토", "desc": "도구 결과를 바탕으로 전문가가 검토하고 상담합니다." }
+  ],
+  "picks": [
+    { "id": "school", "no": 1, "group": "career", "name": "고교 선택 탐색", "target": "중1~중3",
+      "result": "관심 학교와 계열 비교표, 고교 선택 확인 질문",
+      "status": "live", "statusText": "운영 중",
+      "tools": ["dongyeo", "jinro", "snu100", "med100"],
+      "consult": true, "price": null },
+    { "id": "design", "no": 2, "group": "career", "name": "전공 및 과목 설계", "target": "중3~고2",
+      "result": "전공과 학기별 과목 계획표, 과목별 탐구 주제",
+      "status": "live", "statusText": "운영 중",
+      "tools": ["jinro", "univ-major", "grade5-sim", "grade5-9"],
+      "consult": true, "price": null },
+    { "id": "susi", "no": 3, "group": "apply", "name": "수시 지원 전략", "target": "고2~고3, N수",
+      "result": "대학·학과 후보, 전형 요건, 시기별 일정",
+      "status": "review", "statusText": "2028 검수 중",
+      "tools": ["susi2028", "susi2027", "susijeongsi2028", "placement5", "csat-min", "regdoc", "regdoc2027", "police"],
+      "staffTools": ["ec-clinic", "ec-univ", "ec-gyogwa", "ec-hakjong"],
+      "consult": true, "price": null },
+    { "id": "jeongsi", "no": 4, "group": "apply", "name": "정시 지원 전략", "target": "고2~고3, N수",
+      "result": "공개 정시 정보 탐색 (군별 후보·조합 초안은 개인 정시 분석 개발 후)",
+      "status": "soon", "statusText": "개인 분석 개발 예정",
+      "tools": ["susijeongsi2028", "inquiry2028", "eng1", "jeongsi-personal"],
+      "staffTools": ["ec-clinic"],
+      "consult": false, "consultBlock": "개인 정시 분석이 개발·검증된 뒤 제공합니다.", "price": null },
+    { "id": "essay", "no": 5, "group": "apply", "name": "논술 지원 및 준비", "target": "고3, N수",
+      "result": "논술 후보와 고사 일정, 기출 유형 점검",
+      "status": "live", "statusText": "운영 중 · 대학별 자료 보완",
+      "tools": ["essay2027", "susi2027", "csat-min"],
+      "consult": true, "price": null },
+    { "id": "study", "no": 6, "group": "study", "name": "학습 계획 점검", "target": "고1~고3",
+      "result": "학습 계획과 일·주·월 리포트",
+      "status": "member", "statusText": "재원생 우선 · 외부 범위 검토",
+      "tools": ["my247", "studytime", "survey-books"],
+      "consult": false, "consultBlock": "외부 고객 제공 범위가 정해진 뒤 제공합니다. 247 재원생은 재원생 혜택으로 이용합니다.", "price": null }
+  ]
+}
