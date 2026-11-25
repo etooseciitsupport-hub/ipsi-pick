@@ -1,4 +1,4 @@
-// 입시 Pick 선택 기록 저장 — 이 브라우저의 localStorage 'ipsiPick.v1'에만, 별칭 기준, 성적·생기부는 저장하지 않음
+// 247 입시의신 선택 기록 저장 — 이 브라우저의 localStorage 'ipsiPick.v1'에만, 별칭 기준, 성적·생기부는 저장하지 않음
 (function (global) {
   'use strict';
   const KEY = 'ipsiPick.v1';

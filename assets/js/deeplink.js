@@ -35,6 +35,7 @@
   /* 도구별 딥링크 규칙 — 각 도구 소스에서 확인한 파라미터만 쓴다 (통합기획서 v1 §4) */
   function build(tool, pickId, ctx) {
     if (!tool || !tool.url || !ctx) return null;
+    if (tool.deepLink === false) return null;   // 대상 도구 운영본이 아직 파라미터를 받지 않음 — 기본 링크로 둔다
     const s = ctx.schoolId && SCHOOLS[ctx.schoolId];
     const g = ctx.programId && PROGRAMS[ctx.programId];
     switch (tool.id) {
@@ -53,6 +54,10 @@
         return { url: tool.url + 'search?' + qs({ season, q: g.q }),
           label: `${ctx.programName} 관련 ${season} 모집단위` };
       }
+      case 'essay2027':          // ?cat=<계열> (논술 app.js readUrlState — 브랜치 ipsi-pick/url-deeplink)
+        if (!g || !g.essayCat) return null;
+        return { url: tool.url + '?' + qs({ cat: g.essayCat }),
+          label: `${g.essayCat} 계열 논술 대학 보기` };
       default: return null;
     }
   }

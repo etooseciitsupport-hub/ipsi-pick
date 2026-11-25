@@ -1,8 +1,8 @@
-// 입시 Pick 공통 유틸 — 버전·DOM 헬퍼·이스케이프·배너·JSON 로더(실패해도 앱은 계속 동작)
+// 247 입시의신 공통 유틸 — 버전·DOM 헬퍼·이스케이프·배너·JSON 로더(실패해도 앱은 계속 동작)
 (function (global) {
   'use strict';
   /* 고친 뒤에는 반드시 올린다 — index.html 의 ?v= 와 함께 캐시를 깬다 */
-  const VERSION = '1.1';
+  const VERSION = '1.2';
 
   const $ = (sel, root) => (root || document).querySelector(sel);
   const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));

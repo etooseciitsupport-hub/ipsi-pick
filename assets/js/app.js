@@ -1,4 +1,4 @@
-// 입시 Pick 화면 흐름 — 학생·학부모(학년→Pick→이용 방식→나의 Pick·통합 리포트)와 상담자 화면
+// 247 입시의신 화면 흐름 — 학생·학부모(학년→Pick→이용 방식→나의 Pick·통합 리포트)와 상담자 화면
 (function () {
   'use strict';
   const { $, $$, esc, banner, loadJSON } = Core;
@@ -341,7 +341,7 @@
       <div class="noprint nav"><button type="button" class="btn ghost" id="backReport">← 나의 Pick</button>
         <button type="button" class="btn" id="printReport">인쇄 / PDF 저장</button></div>
       <article class="report">
-        <h1>나만의 입시 Pick — 통합 리포트</h1>
+        <h1>247 입시의신 — 나만의 입시 Pick 리포트</h1>
         <p class="meta">${esc(rec.alias || '이름 없음')} · ${esc(g.name || '학년 미선택')} · ${rec.member === 'member' ? '247 재원생' : '외부 학생·학부모'} · 작성 ${esc(Core.nowKST())}</p>
         <h2>이번 시기의 고민과 기대 결과</h2>
         <p>${esc(g.concern || '-')} → ${esc(g.results || '-')} (${esc(g.value || '')})</p>

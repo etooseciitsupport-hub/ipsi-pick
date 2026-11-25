@@ -1,4 +1,4 @@
-# 입시 Pick
+# 247 입시의신
 
 학년별 입시 고민에 맞춰 필요한 **Pick**만 골라, 진로설계·수시·정시·논술·학습 도구와 상담을 한곳에서 연결하는 정적 웹앱입니다.
 「ECI 입시도구 통합 기획(안)」(2026.10.16)의 입시 Pick 구조를 구현했습니다.
@@ -21,7 +21,8 @@
 | 입시동여지도 | `?region=서울&year=2026&school=휘문고등학교` | 관심 고교 (로그인 후 표시) |
 | 2027·2028 수시 | `?q=기계&cat=eng_mech` | 관심 학과 — 카테고리 AND 검색어 |
 | 2028 수시·정시 | `/search?season=정시&q=기계` | 관심 학과 + Pick(수시/정시) |
-| 논술 · MY247 | 기본 링크 | 딥링크 없음 (통합기획서 2단계) |
+| 논술 | `?cat=자연` (계열) | **스위치 꺼짐** — 논술 저장소 브랜치 `ipsi-pick/url-deeplink`가 운영에 반영되면 `data/tools.json` 의 `essay2027.deepLink` 를 `true` 로 |
+| MY247 | 준비중 | 프로토타입이라 연결하지 않음 |
 
 - 기준은 연결한 진로설계 값이 우선이고, 없으면 ① 단계에서 고른 관심 고교·학과를 씁니다.
 - 대응표: `data/school-map.json`(17교 ↔ 동여지도 정식명), `data/program-links.json`(35개 학과 ↔ 수시 카테고리·검색어). 둘 다 각 도구의 실제 데이터와 대조해 만들었고, `validate.mjs`가 진로설계의 학교·학과가 빠짐없이 대응되는지 검사합니다.
@@ -36,16 +37,16 @@
 ```
 <계정>.github.io/jinro-dash/      진로·선택과목 설계 대시보드
 <계정>.github.io/Expert-Course/   입시컨설팅 진단실
-<계정>.github.io/ipsi-pick/       입시 Pick (이 저장소)
+<계정>.github.io/ipsi-pick/       247 입시의신 (이 저장소 — 저장소 이름은 달라도 동작)
 ```
 
-입시 Pick은 `../jinro-dash/`, `../Expert-Course/` 상대 경로로 두 앱의 데이터와 브라우저 저장값을 읽습니다.
+247 입시의신은 `../jinro-dash/`, `../Expert-Course/` 상대 경로로 두 앱의 데이터와 브라우저 저장값을 읽습니다.
 계정이 다르면 진로설계 연결·수록 현황·상담자 학생 목록이 비어 보입니다(앱은 계속 동작합니다).
 
 ## 배포
 
 > **기존 배포 주소에 덮어쓰지 않습니다.** jinro-dash·Expert-Course 등 이미 운영 중인 저장소에 이 파일을 올리지 마십시오.
-> 입시 Pick은 반드시 **새 저장소**에 **별도 커밋**으로 배포합니다. 계정에 같은 이름의 저장소가 이미 있으면 다른 이름(예: `ipsi-pick-v1`)을 쓰십시오 —
+> 247 입시의신은 반드시 **새 저장소**에 **별도 커밋**으로 배포합니다. 계정에 같은 이름의 저장소가 이미 있으면 다른 이름(예: `ipsi-pick-v1`)을 쓰십시오 —
 > 저장소 이름이 달라도 동작합니다(두 앱을 `../jinro-dash/`, `../Expert-Course/` 로 찾기 때문).
 
 1. 새 저장소 `ipsi-pick` (Public) 생성 → 이 폴더 내용 전부 업로드
@@ -82,6 +83,7 @@ data/picks.json          Pick 6개 · 묶음 · 이용 방식 · 상태 · 연�
 data/tools.json          연결 도구 목록과 URL
 data/grades.json         학년별 고민 · 추천 Pick · 결과
 tools/validate.mjs       데이터 상호 참조 · 버전 일치 검사
+tools/deeplink.test.mjs  맞춤 링크 규칙 단위 테스트 (node --test tools/deeplink.test.mjs)
 tools/e2e/pick-flow.mjs  전체 흐름 브라우저 점검 (40개 항목)
 ```
 

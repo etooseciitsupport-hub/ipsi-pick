@@ -1,4 +1,4 @@
-// 입시 Pick 전체 흐름 점검 — 진로설계 학생 생성 → Pick 4단계 → 통합 리포트 → 상담자 화면 → 새로고침 복원
+// 247 입시의신 전체 흐름 점검 — 진로설계 학생 생성 → Pick 4단계 → 통합 리포트 → 상담자 화면 → 새로고침 복원
 // 실행: 세 저장소를 한 폴더 아래 두고  node ipsi-pick/tools/e2e/pick-flow.mjs [그 폴더 경로]
 // Playwright 위치가 다르면 PW=/path/to/node_modules/playwright/index.mjs 로 지정한다.
 import fs from 'node:fs';
@@ -57,9 +57,10 @@ await page.click('#toDesign'); await page.waitForTimeout(400);
 await page.click('#applyRec'); await page.waitForTimeout(300);
 await page.click('#saveBtn').catch(() => {}); await page.waitForTimeout(200);
 
-/* 2) 입시 Pick — 학생 화면 */
+/* 2) 247 입시의신 — 학생 화면 */
 const pick = await ctx.newPage(); watch(pick, 'pick');
 await pick.goto(BASE + 'ipsi-pick/', { waitUntil: 'networkidle' }); await pick.waitForTimeout(500);
+check('앱 이름 247 입시의신', (await pick.title()) === '247 입시의신' && (await pick.locator('.brand b').innerText()) === '247 입시의신');
 check('시작 화면은 ① 학년 선택', await pick.locator('.step.on').innerText().then(t => t.includes('학년')));
 const cov = await pick.locator('.cov').innerText();
 check('수록 현황을 jinro 데이터에서 계산 (17곳·35개)', cov.includes('17곳') && cov.includes('35개'), cov.slice(0, 80));

@@ -1,4 +1,4 @@
-/* 입시 Pick 스타일 — 색은 :root 토큰으로만, 다크 모드와 인쇄 레이아웃 포함 */
+/* 247 입시의신 스타일 — 색은 :root 토큰으로만, 다크 모드와 인쇄 레이아웃 포함 */
 :root {
   --bg: #f6f7f9; --surface: #ffffff; --line: #e2e5ea; --text: #1b1f27; --muted: #5d6573;
   --brand: #0f2a5f; --brand-2: #1d4ed8; --brand-soft: #e8eefc;

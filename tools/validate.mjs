@@ -1,4 +1,4 @@
-// 입시 Pick 데이터 검증 — Pick·도구·학년 JSON의 필수 필드와 상호 참조, 버전 번호 일치를 확인한다
+// 247 입시의신 데이터 검증 — Pick·도구·학년 JSON의 필수 필드와 상호 참조, 버전 번호 일치를 확인한다
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -19,6 +19,8 @@ tools.forEach(t => {
   need(t.url === null || typeof t.url === 'string', `도구 ${t.id}: url은 문자열 또는 null`);
   if (t.url) need(t.url.startsWith('https://') || t.url.startsWith('../'), `도구 ${t.id}: url은 https:// 또는 ../ 로 시작`);
   need(['all', 'staff'].includes(t.audience), `도구 ${t.id}: audience는 all|staff`);
+  need(t.deepLink === undefined || typeof t.deepLink === 'boolean', `도구 ${t.id}: deepLink는 true/false`);
+  if (t.deepLink === false) need(t.deepLinkNote, `도구 ${t.id}: deepLink를 끈 이유(deepLinkNote) 필요`);
 });
 
 const groupIds = new Set(P.groups.map(g => g.id));
@@ -56,6 +58,7 @@ SM.schools.forEach(s => {
 Object.entries(PL.programs).forEach(([id, g]) => {
   need(g.q && g.q.length >= 2, `학과 ${id}: 검색어 q는 2자 이상`);
   need(catSet.has(g.susiCat), `학과 ${id}: 수시 카테고리 ${g.susiCat} 없음`);
+  need((PL.essayCats || []).includes(g.essayCat), `학과 ${id}: 논술 계열 ${g.essayCat} 없음`);
   need(g.n && Object.values(g.n).every(v => v > 0), `학과 ${id}: 결과 0건인 도구가 있음 — 링크를 만들지 말 것`);
 });
 const JINRO = path.join(ROOT, '..', 'jinro-dash', 'data');
