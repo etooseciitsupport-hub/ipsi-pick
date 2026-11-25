@@ -14,11 +14,15 @@
 
   /* ---------- 시작 ---------- */
   async function init() {
-    const [tools, picks, grades] = await Promise.all([
+    const [tools, picks, grades, schoolMap, programLinks] = await Promise.all([
       loadJSON('data/tools.json', { schema: { tools: '배열' } }),
       loadJSON('data/picks.json', { schema: { picks: '배열', groups: '배열', modes: '배열' } }),
       loadJSON('data/grades.json', { schema: { grades: '배열' } }),
+      /* 대응표가 없어도 앱은 동작한다 — 맞춤 링크만 빠지고 기본 링크로 대신한다 */
+      loadJSON('data/school-map.json', { schema: { schools: '배열' }, fallback: { schools: [] } }),
+      loadJSON('data/program-links.json', { schema: { programs: '있음' }, fallback: { programs: {} } }),
     ]);
+    DeepLink.init(schoolMap, programLinks);
     if (!tools || !picks || !grades) {
       $('#app').innerHTML = '<p class="empty">기본 데이터를 읽지 못해 화면을 만들 수 없습니다. data 폴더가 함께 업로드됐는지 확인해 주세요.</p>';
       return;
@@ -30,7 +34,7 @@
     S.rec = Store.current() || Store.blank();
     S.step = S.rec.grade ? (S.rec.picks.length ? 4 : 2) : 1;
     $$('#roleSeg button').forEach(b => { b.onclick = () => setView(b.dataset.role); });
-    Links.coverage().then(c => { S.cov = c; if (S.view === 'staff' || S.step === 1) render(); });
+    Links.coverage().then(c => { S.cov = c; if (!S.report && (S.view === 'staff' || S.step === 1 || S.step === 4)) render(); });
     render();
   }
 
@@ -100,8 +104,27 @@
       <div class="fld"><label for="jinroSel">진로설계 학생 연결 <small>(선택 · 이 브라우저에 저장된 설계)</small></label>
         <select id="jinroSel"><option value="">연결 안 함</option>${jopts}</select>
         <p class="note">${profs.length ? '연결하면 나의 Pick과 통합 리포트에 진로설계 진행 상황이 함께 나옵니다.' : '이 브라우저에 저장된 진로설계 학생이 없습니다. 진로설계를 먼저 하셨다면 같은 브라우저에서 여세요.'}</p></div>
+      ${interestHTML()}
       ${coverageNote()}
       <div class="nav"><span></span><button type="button" class="btn" id="next1"${S.rec.grade ? '' : ' disabled'}>Pick 고르기 →</button></div>`;
+  }
+
+  /* 관심 고교·학과 — 진로설계 기록이 없는 학생(중학생 등)도 맞춤 링크를 받게 한다. 공개 정보만 고른다 */
+  function interestHTML() {
+    const p = S.rec.jinroKey ? Links.jinroProfile(S.rec.jinroKey) : null;
+    const locked = !!(p && (p.schoolId || p.programId));
+    const sopts = DeepLink.schoolList().map(s => `<option value="${esc(s.jinroId)}"${s.jinroId === S.rec.schoolId ? ' selected' : ''}>${esc(s.name)} · ${esc(s.dongyeo.region)} ${esc(s.dongyeo.district)}</option>`).join('');
+    const plist = (S.cov && S.cov.programList) || [];
+    const fields = [...new Set(plist.map(x => x.field))];
+    const popts = fields.map(f => `<optgroup label="${esc(f)}">${plist.filter(x => x.field === f && DeepLink.program(x.programId))
+      .map(x => `<option value="${esc(x.programId)}"${x.programId === S.rec.programId ? ' selected' : ''}>${esc(x.name)}</option>`).join('')}</optgroup>`).join('');
+    return `<div class="row2">
+        <div class="fld"><label for="schoolSel">관심 고교 <small>(선택)</small></label>
+          <select id="schoolSel"${locked ? ' disabled' : ''}><option value="">선택 안 함</option>${sopts}</select></div>
+        <div class="fld"><label for="programSel">관심 학과 <small>(선택)</small></label>
+          <select id="programSel"${locked ? ' disabled' : ''}><option value="">선택 안 함</option>${popts}</select></div>
+      </div>
+      <p class="note">${locked ? '연결한 진로설계의 학교·학과로 맞춤 링크를 만듭니다.' : '고르면 나의 Pick의 도구 링크가 그 학교·학과로 바로 열립니다. 진로설계 수록 학교만 고를 수 있습니다.'}</p>`;
   }
 
   function coverageNote() {
@@ -170,12 +193,26 @@
         <button type="button" class="btn" id="next3">나의 Pick 보기 →</button></div>`;
   }
 
-  function toolLine(id, key) {
+  function toolLine(id, key, pickId, ctx) {
     const t = S.tools[id]; if (!t) return '';
     if (!t.url) return `<li class="tl soon"><b>${esc(t.name)}</b> <span class="st soon">준비중</span><small>${esc(t.desc)}</small></li>`;
     const jinroBtn = id === 'jinro' && key
       ? ` <button type="button" class="btn sm ghost" data-open-jinro="${esc(key)}">이 학생으로 열기 ↗</button>` : '';
+    const deep = DeepLink.build(t, pickId, ctx);
+    if (deep) {
+      return `<li class="tl deep"><span class="tname">${esc(t.name)}</span>
+        <a class="dl" data-deep="${esc(id)}" href="${esc(deep.url)}" target="_blank" rel="noopener">${esc(deep.label)} ↗</a>
+        <a class="all" href="${esc(t.url)}" target="_blank" rel="noopener">전체 보기</a><small>${esc(t.desc)}</small></li>`;
+    }
     return `<li class="tl"><a href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.name)} ↗</a>${jinroBtn}<small>${esc(t.desc)}</small></li>`;
+  }
+
+  /* 맞춤 링크 기준 안내 — 무엇으로 걸렀는지 숨기지 않는다 */
+  function ctxHTML(ctx) {
+    const parts = [ctx.schoolName, ctx.programName].filter(Boolean);
+    if (!parts.length) return `<p class="callout">관심 고교나 학과를 ① 단계에서 고르거나 진로설계를 연결하면, 도구 링크가 <b>그 학교·학과로 바로 열리는 맞춤 링크</b>로 바뀝니다.</p>`;
+    return `<p class="callout ctx">맞춤 링크 기준: <b>${esc(parts.join(' · '))}</b> <small>(${esc(ctx.source)})</small><br>
+      <small>학과 링크는 학과명 키워드로 거른 결과입니다. 2028 자료는 대학별로 일부만 수록된 경우가 있어 결과가 없거나 적어도 해당 모집이 없다는 뜻은 아닙니다.</small></p>`;
   }
 
   function progressHTML(key) {
@@ -201,9 +238,10 @@
 
   function step4() {
     const key = S.rec.jinroKey;
+    const ctx = DeepLink.context(S.rec, S.cov ? S.cov.programList : []);
     const cards = S.rec.picks.map(pickById).filter(Boolean).map(p => {
       const m = defaultMode(p);
-      const tools = p.tools.map(id => toolLine(id, key)).join('');
+      const tools = p.tools.map(id => toolLine(id, key, p.id, ctx)).join('');
       return `<article class="mycard">
         <header><b>${p.no}. ${esc(p.name)}</b><span class="tag mode-${m}">${esc(modeName(m))}</span><span class="st ${STATUS_CLS[p.status] || ''}">${esc(p.statusText)}</span></header>
         <p class="res">받는 결과: ${esc(p.result)}</p>
@@ -214,6 +252,7 @@
       <h2>④ 나의 Pick ${S.rec.alias ? '<small>' + esc(S.rec.alias) + '</small>' : ''}</h2>
       <p class="note">고른 Pick별로 바로 쓸 도구를 모았습니다. 외부 도구는 새 창으로 열립니다.</p>
       ${progressHTML(key)}
+      ${ctxHTML(ctx)}
       <div class="mylist">${cards}</div>
       ${consult.length ? `<p class="callout">유료 컨설팅 검토 ${consult.length}건 — <b>통합 리포트</b>에 상담 요청서가 함께 들어갑니다. 인쇄하거나 PDF로 저장해 지점에 전달해 주세요.</p>` : ''}
       <div class="nav"><button type="button" class="btn ghost" data-go="3">← 이용 방식</button>
@@ -248,6 +287,8 @@
         if (S.rec.jinroKey && !S.rec.alias) { const p = Links.jinroProfile(S.rec.jinroKey); S.rec.alias = (p && (p.studentName || p.studentKey)) || ''; }
         persist(); render();
       };
+      $('#schoolSel').onchange = e => { S.rec.schoolId = e.target.value || null; persist(); };
+      $('#programSel').onchange = e => { S.rec.programId = e.target.value || null; persist(); };
       $('#next1').onclick = () => { S.step = 2; render(); };
     }
     if (S.step === 2) {

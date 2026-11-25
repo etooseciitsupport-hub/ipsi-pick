@@ -20,6 +20,8 @@
       id: 'p-' + Math.random().toString(16).slice(2, 8),
       alias: alias || '',        // 화면 표시용 별칭 (실명 대신 권장)
       jinroKey: null,            // 연결한 진로설계 학생 (읽기만)
+      schoolId: null,            // 관심 고교 (school-map.json 의 jinroId) — 진로설계를 연결하지 않았을 때 맞춤 링크 기준
+      programId: null,           // 관심 학과 (program-links.json 의 키)
       grade: null,               // grades.json 의 id
       member: 'ext',             // 'ext' 외부 / 'member' 247 재원생
       picks: [],                 // 선택한 Pick id

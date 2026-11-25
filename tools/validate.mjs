@@ -43,12 +43,39 @@ grades.forEach(g => {
   g.recommend.forEach(id => need(pickIds.has(id), `학년 ${g.id}: 없는 Pick ${id}`));
 });
 
+/* 맞춤 링크 대응표 — 진로설계의 모든 학교·학과가 빠짐없이, 추정값 없이 대응되는지 */
+const SM = read('data/school-map.json');
+const PL = read('data/program-links.json');
+const catSet = new Set(PL.susiCats || []);
+const mapped = new Set();
+SM.schools.forEach(s => {
+  need(s.jinroId && !mapped.has(s.jinroId), `학교 대응 id 누락·중복: ${s.jinroId}`); mapped.add(s.jinroId);
+  need(s.dongyeo && s.dongyeo.region && s.dongyeo.district && s.dongyeo.fullName, `학교 ${s.jinroId}: 동여지도 region·district·fullName 필요`);
+  need(s.neis === null || /^\d{7}$/.test(String(s.neis)), `학교 ${s.jinroId}: neis는 null 또는 7자리 숫자 (확인 전 추정 금지)`);
+});
+Object.entries(PL.programs).forEach(([id, g]) => {
+  need(g.q && g.q.length >= 2, `학과 ${id}: 검색어 q는 2자 이상`);
+  need(catSet.has(g.susiCat), `학과 ${id}: 수시 카테고리 ${g.susiCat} 없음`);
+  need(g.n && Object.values(g.n).every(v => v > 0), `학과 ${id}: 결과 0건인 도구가 있음 — 링크를 만들지 말 것`);
+});
+const JINRO = path.join(ROOT, '..', 'jinro-dash', 'data');
+let jinroNote = '진로설계 폴더 없음 — 수록 학교·학과 대조 생략';
+if (fs.existsSync(JINRO)) {
+  const regions = JSON.parse(fs.readFileSync(path.join(JINRO, 'regions.json'), 'utf8'));
+  const jSchools = regions.sido.flatMap(s => s.sigungu.flatMap(g => g.schools.map(x => x.schoolId)));
+  jSchools.forEach(id => need(mapped.has(id), `진로설계 학교 ${id} 가 school-map.json 에 없음`));
+  const jProgs = JSON.parse(fs.readFileSync(path.join(JINRO, 'programs', 'index.json'), 'utf8')).programs.map(p => p.programId);
+  jProgs.forEach(id => need(PL.programs[id], `진로설계 학과 ${id} 가 program-links.json 에 없음`));
+  jinroNote = `진로설계 대조: 학교 ${jSchools.length} · 학과 ${jProgs.length}`;
+}
+
 /* 버전 — core.js 의 VERSION 과 index.html 의 ?v= 가 모두 같아야 캐시가 깨진다 */
 const ver = (fs.readFileSync(path.join(ROOT, 'assets/js/core.js'), 'utf8').match(/VERSION = '([^']+)'/) || [])[1];
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 const vs = [...html.matchAll(/\?v=([\w.]+)/g)].map(m => m[1]);
 need(ver && vs.length && vs.every(v => v === ver), `버전 불일치: core.js ${ver} / index.html ${[...new Set(vs)].join(',')}`);
 
-console.log(`검사 대상: 도구 ${tools.length}개 · Pick ${P.picks.length}개 · 학년 ${grades.length}개 · 버전 ${ver}`);
+console.log(`검사 대상: 도구 ${tools.length}개 · Pick ${P.picks.length}개 · 학년 ${grades.length}개 · 학교 대응 ${SM.schools.length} · 학과 대응 ${Object.keys(PL.programs).length} · 버전 ${ver}`);
+console.log(jinroNote);
 if (errs.length) { console.log('\n❌ 문제 ' + errs.length + '건'); errs.forEach(e => console.log(' - ' + e)); process.exit(1); }
 console.log('\n✅ 모두 정상입니다.');

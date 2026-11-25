@@ -2,7 +2,7 @@
 (function (global) {
   'use strict';
   /* 고친 뒤에는 반드시 올린다 — index.html 의 ?v= 와 함께 캐시를 깬다 */
-  const VERSION = '1.0';
+  const VERSION = '1.1';
 
   const $ = (sel, root) => (root || document).querySelector(sel);
   const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));

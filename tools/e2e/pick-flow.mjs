@@ -95,6 +95,18 @@ const prog = await pick.locator('.prog').innerText();
 check('진로설계 진행 상황 — 학교', prog.includes('경기고등학교'), prog.replace(/\s+/g, ' ').slice(0, 160));
 check('진로설계 진행 상황 — 성적 2과목', prog.includes('2과목'));
 check('준비중 도구는 링크 없이 표시', (await pick.locator('.tl.soon').count()) >= 1);
+/* 1.1 맞춤 링크 — 진로설계 값(경기고 · 기계공학과) 기준 */
+const ctxTxt = await pick.locator('.callout.ctx').innerText().catch(() => '');
+check('맞춤 기준 표시 (경기고 · 기계공학과 · 진로설계)', ctxTxt.includes('경기고등학교') && ctxTxt.includes('기계공학과') && ctxTxt.includes('진로설계'), ctxTxt.slice(0, 80));
+const hrefOf = async (pickNo, tool) => pick.locator(`.mycard:has(header b:text-is("${pickNo}")) a[data-deep="${tool}"]`).getAttribute('href').catch(() => null);
+const dec = u => u && decodeURIComponent(u);
+check('수시 → 2028 수시 계승판 ?q=기계&cat=eng_mech', dec(await hrefOf('3. 수시 지원 전략', 'susi2028')) === 'https://omnisis01.github.io/etoos247-ipsi-dashboard-2028/?q=기계&cat=eng_mech', dec(await hrefOf('3. 수시 지원 전략', 'susi2028')));
+check('수시 → 2028 수시·정시 season=수시', dec(await hrefOf('3. 수시 지원 전략', 'susijeongsi2028')) === 'https://2028-delta.vercel.app/search?season=수시&q=기계');
+check('정시 → 2028 수시·정시 season=정시', dec(await hrefOf('4. 정시 지원 전략', 'susijeongsi2028')) === 'https://2028-delta.vercel.app/search?season=정시&q=기계');
+check('논술 → 논술 대시보드는 딥링크 없음(기본 링크)', (await pick.locator('.mycard:has(header b:text-is("5. 논술 지원 및 준비")) a[data-deep="essay2027"]').count()) === 0);
+check('맞춤 링크 옆에 전체 보기 링크', (await pick.locator('.tl.deep a.all').count()) === (await pick.locator('.tl.deep').count()));
+const urls = await pick.locator('a[data-deep]').evaluateAll(as => as.map(a => a.href));
+check('맞춤 URL에 이름·별칭 없음', urls.every(u => !decodeURIComponent(u).includes('픽점검') && !decodeURIComponent(u).includes('테스트학생')), urls.length + '개');
 check('외부 도구 링크는 새 창', await pick.locator('.tl a').first().getAttribute('target') === '_blank');
 
 await pick.click('#toReport'); await pick.waitForTimeout(200);
@@ -144,6 +156,18 @@ await pick.click('#delRec'); await pick.waitForTimeout(300);
 const left = await pick.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('ipsiPick.v1') || '{"students":{}}').students).length);
 const jinroLeft = await pick.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('jinro.profiles.v4') || '{}')).length);
 check('삭제 — Pick 기록만 지우고 진로설계는 남김', left === 0 && jinroLeft === 1, `pick ${left} / jinro ${jinroLeft}`);
+
+/* 6-1) 진로설계 연결 없이 관심 고교·학과만 골라도 맞춤 링크 */
+await pick.click('#gradeGrid [data-grade="m3"]'); await pick.waitForTimeout(200);
+await pick.selectOption('#schoolSel', 'seoul-gangnam-hwimun');
+await pick.selectOption('#programSel', 'computer'); await pick.waitForTimeout(100);
+await pick.click('#next1'); await pick.waitForTimeout(200);
+await pick.click('#next2'); await pick.waitForTimeout(200);
+await pick.click('#next3'); await pick.waitForTimeout(300);
+const dy = dec(await pick.locator('a[data-deep="dongyeo"]').first().getAttribute('href').catch(() => null));
+check('관심 고교 → 동여지도 ?region=서울&year=2026&school=휘문고등학교', dy === 'https://schoolinfo-dashboard.vercel.app/?region=서울&year=2026&school=휘문고등학교', dy);
+check('맞춤 기준 표시 (Pick에서 고름)', (await pick.locator('.callout.ctx').innerText().catch(() => '')).includes('(Pick)'));
+await shot(pick, '8-deep');
 
 /* 7) 휴대폰 폭 */
 await pick.setViewportSize({ width: 375, height: 800 }); await pick.waitForTimeout(200);

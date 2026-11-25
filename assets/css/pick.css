@@ -138,3 +138,9 @@ table.kv th { width: 120px; }
   body { background: #fff; color: #000; } main { padding: 0; max-width: none; }
   .report { border: 0; padding: 0; } a { color: #000; text-decoration: none; }
 }
+
+/* 1.1 맞춤 링크 */
+.tl.deep .tname { display: block; font-size: .8rem; color: var(--muted); }
+.tl.deep .dl { font-weight: 600; }
+.tl.deep .all { font-size: .8rem; margin-left: 8px; color: var(--muted); }
+.callout.ctx small { color: var(--muted); }

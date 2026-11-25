@@ -1,0 +1,26 @@
+{
+  "checkedAt": "2026-11-25",
+  "source": "jinro-dash data/regions.json ↔ 입시동여지도 dashboard/src/data2026/<권역>/schools.json 대조 (정식명·구 일치 확인)",
+  "dongyeoYear": "2026",
+  "note": "neis(행정표준코드)는 입시동여지도 수집 DB에서 확인 후 채운다. 확인 전에는 null — 추정값을 넣지 않는다.",
+  "schools": [
+    { "jinroId": "seoul-gangnam-gaepo", "name": "개포고등학교", "dongyeo": { "region": "서울", "district": "강남구", "fullName": "개포고등학교" }, "neis": null },
+    { "jinroId": "seoul-gangnam-gyeonggi", "name": "경기고등학교", "dongyeo": { "region": "서울", "district": "강남구", "fullName": "경기고등학교" }, "neis": null },
+    { "jinroId": "seoul-gangnam-gyeonggiw", "name": "경기여자고등학교", "dongyeo": { "region": "서울", "district": "강남구", "fullName": "경기여자고등학교" }, "neis": null },
+    { "jinroId": "seoul-gangnam-dankook", "name": "단국대사대부고", "dongyeo": { "region": "서울", "district": "강남구", "fullName": "단국대학교사범대학부속고등학교" }, "neis": null },
+    { "jinroId": "seoul-gangnam-sookmyung", "name": "숙명여자고등학교", "dongyeo": { "region": "서울", "district": "강남구", "fullName": "숙명여자고등학교" }, "neis": null },
+    { "jinroId": "seoul-gangnam-apgujeong", "name": "압구정고등학교", "dongyeo": { "region": "서울", "district": "강남구", "fullName": "압구정고등학교" }, "neis": null },
+    { "jinroId": "seoul-gangnam-yeongdong", "name": "영동고등학교", "dongyeo": { "region": "서울", "district": "강남구", "fullName": "영동고등학교" }, "neis": null },
+    { "jinroId": "seoul-gangnam-eungwang", "name": "은광여자고등학교", "dongyeo": { "region": "서울", "district": "강남구", "fullName": "은광여자고등학교" }, "neis": null },
+    { "jinroId": "seoul-gangnam-jungdong", "name": "중동고등학교(자율형사립)", "dongyeo": { "region": "서울", "district": "강남구", "fullName": "중동고등학교" }, "neis": null },
+    { "jinroId": "seoul-gangnam-jungsan", "name": "중산고등학교", "dongyeo": { "region": "서울", "district": "강남구", "fullName": "중산고등학교" }, "neis": null },
+    { "jinroId": "seoul-gangnam-jinseon", "name": "진선여자고등학교", "dongyeo": { "region": "서울", "district": "강남구", "fullName": "진선여자고등학교" }, "neis": null },
+    { "jinroId": "seoul-gangnam-cheongdam", "name": "청담고등학교", "dongyeo": { "region": "서울", "district": "서초구", "fullName": "청담고등학교" }, "neis": null,
+      "caveat": "jinro는 강남구, 입시동여지도는 서초구로 등록. 학교명은 서울 안에서 하나뿐이라 링크는 동작하지만 소재 구는 확인 필요." },
+    { "jinroId": "seoul-gangnam-hyundai", "name": "현대고등학교(자율형사립)", "dongyeo": { "region": "서울", "district": "강남구", "fullName": "현대고등학교" }, "neis": null },
+    { "jinroId": "seoul-gangnam-hwimun", "name": "휘문고등학교(자율형사립)", "dongyeo": { "region": "서울", "district": "강남구", "fullName": "휘문고등학교" }, "neis": null },
+    { "jinroId": "seoul-gwangjin-daewon", "name": "대원외국어고등학교", "dongyeo": { "region": "서울", "district": "광진구", "fullName": "대원외국어고등학교" }, "neis": null },
+    { "jinroId": "gyeonggi-gwacheon-gwacheon", "name": "과천외국어고등학교", "dongyeo": { "region": "경기남부", "district": "과천시", "fullName": "과천외국어고등학교" }, "neis": null },
+    { "jinroId": "chungcheong-daejeon-yuseong", "name": "유성여자고등학교", "dongyeo": { "region": "대전", "district": "유성구", "fullName": "유성여자고등학교" }, "neis": null }
+  ]
+}
