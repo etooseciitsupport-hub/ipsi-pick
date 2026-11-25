@@ -30,10 +30,10 @@ test('도구별 링크 규칙', () => {
   assert.equal(D.build(tools.jinro, 'design', ctx), null, '진로설계는 같은 출처라 링크 대신 학생 열기 버튼을 쓴다');
 });
 
-test('논술 딥링크는 스위치가 꺼져 있으면 만들지 않고, 켜면 계열로 연다', () => {
-  assert.equal(tools.essay2027.deepLink, false, '운영 반영 전에는 꺼 둔다');
-  assert.equal(D.build(tools.essay2027, 'essay', ctx), null);
-  assert.equal(dec(D.build({ ...tools.essay2027, deepLink: true }, 'essay', ctx)), 'https://2027essayanalysis.pages.dev/?cat=자연');
+test('논술 딥링크는 계열로 열고, 스위치를 끄면 만들지 않는다', () => {
+  assert.equal(tools.essay2027.deepLink, true, '논술 운영본이 ?cat= 을 받는다 (PR #260)');
+  assert.equal(dec(D.build(tools.essay2027, 'essay', ctx)), 'https://2027essayanalysis.pages.dev/?cat=자연');
+  assert.equal(D.build({ ...tools.essay2027, deepLink: false }, 'essay', ctx), null);
   const med = D.context({ programId: 'medicine' }, [{ programId: 'medicine', name: '의예과' }]);
   assert.equal(dec(D.build({ ...tools.essay2027, deepLink: true }, 'essay', med)), 'https://2027essayanalysis.pages.dev/?cat=의학');
 });

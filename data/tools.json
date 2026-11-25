@@ -54,7 +54,7 @@
 
     { "id": "essay2027", "name": "2027 주요대학 논술 톺아보기", "url": "https://2027essayanalysis.pages.dev/", "audience": "all",
       "desc": "계열·최저·고사 시기·논술 유형·모집단위·문항 자료 탐색.",
-      "deepLink": false, "deepLinkNote": "?u=&cat=&tab= 지원은 논술 저장소 ipsi-pick/url-deeplink 브랜치(fb2dbe7)에만 있음. 운영 반영을 확인한 뒤 true로 바꾼다." },
+      "deepLink": true, "deepLinkNote": "?u=&cat=&tab= — 논술 저장소 PR #260(병합 6823220, 2026-11-25) 운영 반영 확인 후 켬." },
 
     { "id": "my247", "name": "MY247 학습 리포트", "url": null, "audience": "all",
       "desc": "일·주·월 학습 리포트. 247 재원생 앱 연계 범위를 정하는 중입니다." },

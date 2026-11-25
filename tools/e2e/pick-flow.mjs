@@ -104,7 +104,7 @@ const dec = u => u && decodeURIComponent(u);
 check('수시 → 2028 수시 계승판 ?q=기계&cat=eng_mech', dec(await hrefOf('3. 수시 지원 전략', 'susi2028')) === 'https://omnisis01.github.io/etoos247-ipsi-dashboard-2028/?q=기계&cat=eng_mech', dec(await hrefOf('3. 수시 지원 전략', 'susi2028')));
 check('수시 → 2028 수시·정시 season=수시', dec(await hrefOf('3. 수시 지원 전략', 'susijeongsi2028')) === 'https://2028-delta.vercel.app/search?season=수시&q=기계');
 check('정시 → 2028 수시·정시 season=정시', dec(await hrefOf('4. 정시 지원 전략', 'susijeongsi2028')) === 'https://2028-delta.vercel.app/search?season=정시&q=기계');
-check('논술 → 논술 대시보드는 딥링크 없음(기본 링크)', (await pick.locator('.mycard:has(header b:text-is("5. 논술 지원 및 준비")) a[data-deep="essay2027"]').count()) === 0);
+check('논술 → 논술 대시보드 ?cat=자연', dec(await hrefOf('5. 논술 지원 및 준비', 'essay2027')) === 'https://2027essayanalysis.pages.dev/?cat=자연', dec(await hrefOf('5. 논술 지원 및 준비', 'essay2027')));
 check('맞춤 링크 옆에 전체 보기 링크', (await pick.locator('.tl.deep a.all').count()) === (await pick.locator('.tl.deep').count()));
 const urls = await pick.locator('a[data-deep]').evaluateAll(as => as.map(a => a.href));
 check('맞춤 URL에 이름·별칭 없음', urls.every(u => !decodeURIComponent(u).includes('픽점검') && !decodeURIComponent(u).includes('테스트학생')), urls.length + '개');
