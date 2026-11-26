@@ -7,8 +7,8 @@
   주소가 이 앱과 다른 출처이면 두 앱의 브라우저 저장값은 읽을 수 없습니다.
   그때는 진로설계·진단실에서 내보낸 JSON 파일을 '파일 불러오기'로 넣습니다.
 */
-/* 배포: etooseciitsupport-hub.github.io/ipsi-pick/ — 진로설계·진단실은 etooseci 계정에 있다 (2026-11-26) */
+/* 배포: etooseciitsupport-hub.github.io 에 세 앱을 함께 둔다 (2026-11-26) — 같은 계정이라 상대 경로 */
 window.IPSI_CONFIG = {
-  jinroBase: 'https://etooseci.github.io/jinro-dash/',
-  ecBase: 'https://etooseci.github.io/Expert-Course/',
+  jinroBase: '../jinro-dash/',
+  ecBase: '../Expert-Course/',
 };
