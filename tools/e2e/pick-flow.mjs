@@ -21,6 +21,9 @@ const ctx = await browser.newContext({ viewport: { width: 1300, height: 1000 } }
 await ctx.route(BASE + '**', route => {
   let p = decodeURIComponent(new URL(route.request().url()).pathname);
   if (p.endsWith('/')) p += 'index.html';
+  /* 이 점검은 같은 계정 배치(상대 경로) 기준 — 배포용 config.js 값과 무관하게 */
+  if (p === '/ipsi-pick/assets/js/config.js') return route.fulfill({ status: 200, contentType: 'text/javascript',
+    body: "window.IPSI_CONFIG = { jinroBase: '../jinro-dash/', ecBase: '../Expert-Course/' };" });
   const file = path.join(ROOT, p);
   if (!file.startsWith(ROOT) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) return route.fulfill({ status: 404, body: 'not found' });
   route.fulfill({ status: 200, contentType: TYPES[path.extname(file)] || 'application/octet-stream', body: fs.readFileSync(file) });
