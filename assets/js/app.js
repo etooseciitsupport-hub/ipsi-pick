@@ -27,7 +27,8 @@
       $('#app').innerHTML = '<p class="empty">기본 데이터를 읽지 못해 화면을 만들 수 없습니다. data 폴더가 함께 업로드됐는지 확인해 주세요.</p>';
       return;
     }
-    tools.tools.forEach(t => { S.tools[t.id] = t; });
+    /* 진로설계·진단실 링크는 config.js 주소로 바꿔 끼운다 */
+    tools.tools.forEach(t => { t.url = Links.toolUrl(t.url); S.tools[t.id] = t; });
     S.toolMeta = { asOf: tools.asOf, source: tools.statusSource };
     S.picks = picks.picks; S.groups = picks.groups; S.modes = picks.modes; S.grades = grades.grades;
     S.view = Store.role();
@@ -101,9 +102,12 @@
             <button type="button" data-m="member" aria-pressed="${S.rec.member === 'member'}">247 재원생</button>
           </div></div>
       </div>
-      <div class="fld"><label for="jinroSel">진로설계 학생 연결 <small>(선택 · 이 브라우저에 저장된 설계)</small></label>
+      <div class="fld"><label for="jinroSel">진로설계 학생 연결 <small>(선택 · 이 브라우저에 저장된 설계 또는 불러온 파일)</small></label>
         <select id="jinroSel"><option value="">연결 안 함</option>${jopts}</select>
-        <p class="note">${profs.length ? '연결하면 나의 Pick과 통합 리포트에 진로설계 진행 상황이 함께 나옵니다.' : '이 브라우저에 저장된 진로설계 학생이 없습니다. 진로설계를 먼저 하셨다면 같은 브라우저에서 여세요.'}</p></div>
+        <p class="note">${profs.length ? '연결하면 나의 Pick과 통합 리포트에 진로설계 진행 상황이 함께 나옵니다.'
+          : Links.SAME_ORIGIN ? '이 브라우저에 저장된 진로설계 학생이 없습니다. 진로설계를 먼저 하셨다면 같은 브라우저에서 여시거나, 내보낸 JSON 파일을 불러오세요.'
+          : '진로설계가 다른 주소에 있어 저장값을 바로 읽을 수 없습니다. 진로설계에서 「설계 JSON 내보내기」로 받은 파일을 불러오세요.'}</p>
+        ${importHTML()}</div>
       ${interestHTML()}
       ${coverageNote()}
       <div class="nav"><span></span><button type="button" class="btn" id="next1"${S.rec.grade ? '' : ' disabled'}>Pick 고르기 →</button></div>`;
@@ -215,6 +219,39 @@
       <small>학과 링크는 학과명 키워드로 거른 결과입니다. 2028 자료는 대학별로 일부만 수록된 경우가 있어 결과가 없거나 적어도 해당 모집이 없다는 뜻은 아닙니다.</small></p>`;
   }
 
+  /* 진단실 기록 표시 — 개별 백업 파일에는 번호가 없다 */
+  const ecLabel = ec => (ec.number == null ? '기록 있음' : String(ec.number).padStart(2, '0') + '번');
+
+  /* 파일 불러오기 — 진로설계·진단실이 다른 주소에 있을 때 내보낸 JSON으로 연결한다 */
+  function importHTML() {
+    const n = Links.importedCount();
+    return `<div class="imp noprint"><label class="btn sm ghost" for="impFile">파일 불러오기</label>
+      <input type="file" id="impFile" accept=".json,application/json" multiple hidden>
+      <small>진로설계 「설계 JSON 내보내기」 · 진단실 「파일 백업」「전체 백업」 파일. 진행 상황 요약만 저장하고 성적 점수·생기부 문장·상담 내용은 저장하지 않습니다.</small>
+      ${n.jinro || n.ec ? `<p class="note">불러온 기록: 진로설계 ${n.jinro}명 · 진단실 ${n.ec}건 <button type="button" class="btn sm ghost" id="impClear">불러온 기록 지우기</button></p>` : ''}</div>`;
+  }
+  function bindImport() {
+    const f = $('#impFile'); if (!f) return;
+    f.onchange = async e => {
+      const done = [], bad = [];
+      for (const file of Array.from(e.target.files)) {
+        try {
+          if (file.size > 5000000) throw new Error('5MB 이하 파일만 불러옵니다');
+          done.push(Links.importJSON(JSON.parse(await file.text())));
+        } catch (err) { bad.push(`${file.name}: ${err instanceof SyntaxError ? 'JSON 파일이 아닙니다' : err.message}`); }
+      }
+      e.target.value = '';
+      render();
+      if (done.length) banner('info', '파일을 불러왔습니다', done.join(' · '), { replaceKey: 'imp' });
+      if (bad.length) banner('warn', '불러오지 못한 파일이 있습니다', bad.join(' · '), { replaceKey: 'imp-bad' });
+    };
+    const c = $('#impClear');
+    if (c) c.onclick = () => {
+      if (!confirm('파일로 불러온 진로설계·진단실 요약을 이 브라우저에서 지울까요? 원본 파일과 각 앱의 기록은 그대로입니다.')) return;
+      Links.clearImported(); render();
+    };
+  }
+
   function progressHTML(key) {
     if (!key) return '';
     const p = Links.jinroProfile(key);
@@ -231,7 +268,7 @@
         ${li(g.chosen > 0, '설계한 과목', g.chosen ? g.chosen + '과목' : '없음')}
         ${li(g.diagnosed, '생기부 진단', g.diagnosed ? '완료' : '안 함')}
         ${li(g.gradeRows > 0, '교과 성적', g.gradeRows ? g.gradeRows + '과목' : '없음')}
-        ${li(!!ec, '상담 진단실 기록', ec ? String(ec.number).padStart(2, '0') + '번' : '없음')}
+        ${li(!!ec, '상담 진단실 기록', ec ? ecLabel(ec) : '없음')}
       </ul>
       <p class="noprint" style="margin:10px 0 0"><button type="button" class="btn sm ghost" data-open-jinro="${esc(key)}">진로설계 이어서 하기 ↗</button></p></div>`;
   }
@@ -290,6 +327,7 @@
       $('#schoolSel').onchange = e => { S.rec.schoolId = e.target.value || null; persist(); };
       $('#programSel').onchange = e => { S.rec.programId = e.target.value || null; persist(); };
       $('#next1').onclick = () => { S.step = 2; render(); };
+      bindImport();
     }
     if (S.step === 2) {
       $$('[data-pick]').forEach(c => {
@@ -385,7 +423,7 @@
         <td>${rec ? rec.picks.map(id => esc(pickById(id).name)).join('<br>') || '-' : '<small>Pick 기록 없음</small>'}</td>
         <td>${consult.length ? '<span class="tag mode-consult">요청</span> ' + esc(consult.join(', ')) : '-'}</td>
         <td>${g ? `${esc(g.school || '학교 미선택')}<br><small>과목 ${g.chosen} · 진단 ${g.diagnosed ? '✓' : '–'} · 성적 ${g.gradeRows}과목</small>` : '<small>연결 안 됨</small>'}</td>
-        <td>${ec ? String(ec.number).padStart(2, '0') + '번' : '-'}</td>
+        <td>${ec ? ecLabel(ec) : '-'}</td>
         <td class="acts">
           ${key ? `<button type="button" class="btn sm ghost" data-open-jinro="${esc(key)}">진로설계</button>
             <a class="btn sm ghost" href="${esc(Links.ecUrl('', key))}" target="_blank" rel="noopener">진단실</a>
@@ -403,7 +441,7 @@
         <div><b>${c.majors.length}</b><span>계열</span></div>
         <div><b>${c.programs == null ? '–' : c.programs}</b><span>학과</span></div>
       </div><p class="note">${esc(c.areas.join(' · '))} · 진로설계 데이터 기준 ${esc(c.updatedAt || '')}</p>`
-      : '<p class="note">진로설계 데이터를 읽지 못했습니다. 같은 계정 아래 jinro-dash 저장소가 있는지 확인하세요.</p>';
+      : `<p class="note">진로설계 데이터를 읽지 못했습니다. assets/js/config.js 의 진로설계 주소(${esc(Links.JINRO)})를 확인하세요.</p>`;
     const staffTools = ['ec-clinic', 'ec-univ', 'ec-gyogwa', 'ec-hakjong', 'jinro'].map(id => {
       const t = S.tools[id];
       return `<a class="tcard" href="${esc(t.url)}" target="_blank" rel="noopener"><b>${esc(t.name)} ↗</b><span>${esc(t.desc)}</span></a>`;
@@ -412,9 +450,11 @@
       <td>${p.tools.concat(p.staffTools || []).map(id => S.tools[id]).filter(Boolean).map(t => t.url ? `<a href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.name)}</a>` : esc(t.name) + ' (준비중)').join(' · ')}</td>
       <td><span class="st ${STATUS_CLS[p.status] || ''}">${esc(p.statusText)}</span></td></tr>`).join('');
     return `
-      <p class="callout">상담자 화면은 <b>보기 전환</b>일 뿐 보안 권한이 아닙니다. 이 브라우저에 저장된 학생만 보입니다.</p>
+      <p class="callout">상담자 화면은 <b>보기 전환</b>일 뿐 보안 권한이 아닙니다. 이 브라우저에 저장된 학생과 불러온 파일만 보입니다.</p>
+      ${Links.SAME_ORIGIN ? '' : `<p class="callout" id="xoNote">진로설계·진단실이 다른 주소(${esc(Links.JINRO)})에 있어 그 앱의 저장값을 바로 읽을 수 없습니다. 각 앱에서 내보낸 JSON 파일을 아래 「파일 불러오기」로 넣으세요. 「진로설계」 버튼은 학생을 고르지 않고 첫 화면을 엽니다.</p>`}
       <section class="panel"><h2>수록 현황</h2>${cov}</section>
       <section class="panel"><h2>학생 <small>Pick 기록 ${recs.length} · 진로설계 ${profs.length}</small></h2>
+        ${importHTML()}
         ${rows ? `<div class="tblwrap"><table class="stu"><thead><tr><th>학생</th><th>학년</th><th>선택 Pick</th><th>상담 요청</th><th>진로설계</th><th>진단실</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
           : '<p class="empty">이 브라우저에 저장된 학생이 없습니다.</p>'}
       </section>
@@ -425,6 +465,7 @@
 
   function bindStaff() {
     $$('[data-open-jinro]').forEach(b => { b.onclick = () => Links.openJinro(b.dataset.openJinro); });
+    bindImport();
     $$('[data-report]').forEach(b => {
       b.onclick = () => { const r = Store.get(b.dataset.report); if (!r) return; S.rec = r; Store.setCurrent(r.id); S.report = true; render(); };
     });

@@ -144,3 +144,7 @@ table.kv th { width: 120px; }
 .tl.deep .dl { font-weight: 600; }
 .tl.deep .all { font-size: .8rem; margin-left: 8px; color: var(--muted); }
 .callout.ctx small { color: var(--muted); }
+/* 파일 불러오기 */
+.imp { margin: 10px 0 4px; }
+.imp small { display: block; color: var(--muted); margin-top: 6px; }
+.imp .note { margin: 6px 0 0; }

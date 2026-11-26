@@ -30,9 +30,11 @@
 - 수시 대시보드의 `?h=`·`?r=`·`?c=`(지원카드 복원) 링크는 만들지 않습니다 — 학생의 기존 지원카드를 덮어씁니다.
 - 학교 NEIS 코드는 아직 비어 있습니다(`neis: null`). 입시동여지도 수집 DB에서 확인한 뒤 채웁니다.
 
-## 반드시 지킬 배치
+## 배치 — 같은 계정이면 그대로, 다른 주소면 `config.js` 한 곳만
 
-세 저장소를 **같은 GitHub 계정(또는 조직) 아래**, 이름을 대소문자까지 정확히 둡니다.
+진로설계·진단실 주소는 **`assets/js/config.js`** 에서만 정합니다. 기본값은 같은 계정 배치(상대 경로)입니다.
+
+**A. 같은 GitHub 계정(또는 조직) 아래** — 설정을 고치지 않습니다. 두 앱의 브라우저 저장값을 바로 읽습니다.
 
 ```
 <계정>.github.io/jinro-dash/      진로·선택과목 설계 대시보드
@@ -40,8 +42,29 @@
 <계정>.github.io/ipsi-pick/       247 입시의신 (이 저장소 — 저장소 이름은 달라도 동작)
 ```
 
-247 입시의신은 `../jinro-dash/`, `../Expert-Course/` 상대 경로로 두 앱의 데이터와 브라우저 저장값을 읽습니다.
-계정이 다르면 진로설계 연결·수록 현황·상담자 학생 목록이 비어 보입니다(앱은 계속 동작합니다).
+**B. 다른 계정·도메인** — `config.js` 의 두 주소를 절대 주소로 바꿉니다.
+
+```js
+window.IPSI_CONFIG = {
+  jinroBase: 'https://etooseci.github.io/jinro-dash/',
+  ecBase: 'https://etooseci.github.io/Expert-Course/',
+};
+```
+
+| 기능 | A. 같은 계정 | B. 다른 주소 |
+|---|---|---|
+| 도구 링크·진단실 `?jinro=` 링크 | ✅ | ✅ (설정 주소로 바뀜) |
+| 수록 현황(학교·학과 수) | ✅ | ✅ (GitHub Pages가 CORS 허용) |
+| 진로설계 학생 목록·진행 상황 | 저장값을 바로 읽음 | **파일 불러오기** 필요 |
+| 「진로설계 이어서 하기」 | 그 학생으로 열림 | 첫 화면만 열림 |
+
+다른 출처의 브라우저 저장값은 브라우저가 막기 때문에(우회하지 않습니다), B에서는 각 앱이 이미 만드는 파일을 불러옵니다.
+① 단계와 상담자 화면의 **「파일 불러오기」** 에 아래 파일을 넣습니다(여러 개 한 번에 가능).
+
+- 진로설계 ⑥ 리포트의 「📤 설계 JSON 내보내기」 파일
+- 진단실 「파일 백업」(학생 1명) 또는 「전체 백업」 파일
+
+불러온 파일은 **진행 상황 요약만** `ipsiPick.imported.v1` 에 저장합니다(학교·학과·과목명·진단 여부·성적 과목 수·진단실 번호와 학생 이름). 성적 점수·생기부 문장·진단실 상담 내용은 저장하지 않습니다. 「불러온 기록 지우기」로 지웁니다.
 
 ## 배포
 
@@ -63,6 +86,7 @@
 ```bash
 npm install playwright && npx playwright install chromium   # 최초 1회
 node ipsi-pick/tools/e2e/pick-flow.mjs                        # 부모 폴더에서 실행 · 서버 필요 없음
+node ipsi-pick/tools/e2e/cross-origin.mjs                     # 다른 주소 배포(B) 점검
 ```
 
 Playwright를 다른 곳에 설치했다면 `PW=/경로/node_modules/playwright/index.mjs` 를 앞에 붙입니다. `SHOTS=/폴더` 를 주면 화면 캡처를 남깁니다.
@@ -71,10 +95,11 @@ Playwright를 다른 곳에 설치했다면 `PW=/경로/node_modules/playwright/
 
 ```
 index.html               셸
+assets/js/config.js      진로설계·진단실 주소 (배포 위치가 다르면 여기만 고침)
 assets/css/pick.css      스타일 (다크 모드·인쇄 포함)
 assets/js/core.js        VERSION · DOM 헬퍼 · 배너 · loadJSON(실패해도 계속 동작)
 assets/js/store.js       Pick 기록 — localStorage 'ipsiPick.v1' (별칭·학년·Pick·이용 방식·고민 메모)
-assets/js/links.js       진로설계·진단실 저장값 읽기, 수록 현황 계산 (읽기 전용)
+assets/js/links.js       진로설계·진단실 저장값 읽기, 파일 불러오기(요약만 저장), 수록 현황 계산
 assets/js/deeplink.js    학생 맞춤 링크 생성 (도구별 URL 파라미터 규칙)
 data/school-map.json     진로설계 학교 ↔ 입시동여지도 정식명 (NEIS 코드 자리)
 data/program-links.json  진로설계 학과 ↔ 수시 카테고리·검색어
@@ -84,7 +109,8 @@ data/tools.json          연결 도구 목록과 URL
 data/grades.json         학년별 고민 · 추천 Pick · 결과
 tools/validate.mjs       데이터 상호 참조 · 버전 일치 검사
 tools/deeplink.test.mjs  맞춤 링크 규칙 단위 테스트 (node --test tools/deeplink.test.mjs)
-tools/e2e/pick-flow.mjs  전체 흐름 브라우저 점검 (40개 항목)
+tools/e2e/pick-flow.mjs  전체 흐름 브라우저 점검 (41개 항목)
+tools/e2e/cross-origin.mjs  다른 주소 배포 점검 (20개 항목)
 ```
 
 ## 운영 원칙
@@ -92,7 +118,7 @@ tools/e2e/pick-flow.mjs  전체 흐름 브라우저 점검 (40개 항목)
 - **합격 예측·보장을 하지 않습니다.** 리포트는 고른 항목과 저장된 사실만 모읍니다.
 - **가격은 비워 둡니다.** 상품 가격이 확정되면 `data/picks.json` 의 `price` 에 숫자(원)를 넣습니다. 그 전에는 "지점 상담 시 안내"로 표시됩니다.
 - **결제·예약은 아직 없습니다.** 유료 컨설팅을 고르면 통합 리포트에 상담 요청서가 붙고, 이를 지점에 전달합니다.
-- **개인정보** — 성적·생기부는 이 앱에 저장하지 않습니다(진로설계에서 읽어 보여 주기만). 실명 대신 별칭을 권장하며, 기록은 이 브라우저에만 있고 언제든 삭제할 수 있습니다. 공개 저장소에 학생 정보를 올리지 않습니다.
+- **개인정보** — 성적·생기부는 이 앱에 저장하지 않습니다(진로설계에서 읽어 보여 주기만, 파일로 불러올 때도 요약만). 실명 대신 별칭을 권장하며, 기록은 이 브라우저에만 있고 언제든 삭제할 수 있습니다. 공개 저장소에 학생 정보를 올리지 않습니다.
 - **상담자 화면은 보안 권한이 아닙니다.** 정적 사이트라 누구나 전환할 수 있습니다. 권한 구분이 필요하면 로그인·서버가 있는 다음 단계에서 다룹니다.
 - **수록 현황은 하드코딩하지 않습니다.** 학교·계열·학과 수는 jinro-dash 데이터에서 매번 셉니다.
 - 도구 상태(운영 중 / 검수 중 / 준비중)는 기획안 1016 Appendix 5 기준입니다. 바뀌면 `data/picks.json` 의 `status`·`statusText` 를 고칩니다.
